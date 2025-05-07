@@ -32,7 +32,7 @@ public class SettingsMonitorService extends Service {
     }
 
     private void sendLog(String message) {
-        Log.d(TAG, "message");
+        Log.d(TAG, message);
         // 直接通过单例发送日志
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         String logEntry = sdf.format(new Date()) + " - " + message;
