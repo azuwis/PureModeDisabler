@@ -19,7 +19,7 @@ import java.util.Locale;
 public class SettingsMonitorService extends Service {
     private static final String TAG = "PureModeDisabler";
     private static final String PURE_MODE_SETTING = "pure_mode_state";
-    
+
     private ContentObserver mSettingsObserver;
     private AlarmManager mAlarmManager;
     private PendingIntent mAlarmPendingIntent;

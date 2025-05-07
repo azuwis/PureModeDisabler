@@ -21,7 +21,7 @@ public class MainActivity extends ComponentActivity {
 
         getWindow().getDecorView().setSystemUiVisibility(
             View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        
+
         logTextView = findViewById(R.id.logTextView);
         setupLogDisplay();
 
@@ -43,7 +43,7 @@ public class MainActivity extends ComponentActivity {
                 logBuffer.removeFirst();
             }
             logBuffer.add(message);
-            
+
             updateLogDisplay();
         });
     }
@@ -55,7 +55,7 @@ public class MainActivity extends ComponentActivity {
             sb.append(entry).append("\n");
         }
         logTextView.setText(sb.toString());
-        
+
         // 自动滚动到底部
         final int scrollAmount = logTextView.getLayout() != null ?
                 logTextView.getLayout().getLineTop(logTextView.getLineCount()) - logTextView.getHeight() : 0;
