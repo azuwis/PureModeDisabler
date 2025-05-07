@@ -19,6 +19,6 @@ public class LogEventManager {
     }
 
     public void postLog(String message) {
-        logLiveData.postValue(message);
+        logLiveData.setValue(message);
     }
 }
