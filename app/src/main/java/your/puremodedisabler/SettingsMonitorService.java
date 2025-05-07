@@ -64,12 +64,12 @@ public class SettingsMonitorService extends Service {
             if (currentState != 1) {
                 Settings.Secure.putInt(getContentResolver(), PURE_MODE_SETTING, 1);
                 sendLog("Pure mode disabled");
-                Log.d(TAG, "Pure mode disabled");
             }
         } catch (Settings.SettingNotFoundException e) {
-            Log.e(TAG, "Pure mode setting not found", e);
+            sendLog("Pure mode setting not found: " + e);
         } catch (SecurityException e) {
-            Log.e(TAG, "Missing WRITE_SECURE_SETTINGS permission", e);
+            sendLog("Missing WRITE_SECURE_SETTINGS permission: " + e);
+            sendLog("Setup adb and run: adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS");
         }
     }
 
