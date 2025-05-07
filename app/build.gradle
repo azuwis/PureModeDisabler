@@ -1,0 +1,29 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'your.puremodedisabler'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "your.puremodedisabler"
+        minSdk 31  // Android 12 (API 31)
+        resConfigs "en"
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            shrinkResources true
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.activity:activity:1.9.3'
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.9.0'
+}
