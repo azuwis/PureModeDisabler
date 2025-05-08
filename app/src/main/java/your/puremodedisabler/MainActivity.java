@@ -23,6 +23,10 @@ public class MainActivity extends ComponentActivity {
         logTextView = findViewById(R.id.logTextView);
         setupLogDisplay();
 
+        findViewById(R.id.btnDisablePureMode).setOnClickListener(v -> {
+            SettingsMonitorService.startService(this);
+        });
+
         LogEventManager.getInstance().getLogLiveData()
             .observe(this, this::updateLog);
 

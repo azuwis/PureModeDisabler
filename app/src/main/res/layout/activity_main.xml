@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:padding="8dp"
     tools:context=".MainActivity">
 
     <!-- 日志显示区域 -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:scrollbars="vertical">
 
         <TextView
@@ -24,4 +25,13 @@
             android:gravity="top|start"/>
     </ScrollView>
 
+    <Button
+        android:id="@+id/btnDisablePureMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Disable Pure Mode"
+        android:paddingVertical="12dp"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#3F51B5"
+        android:textColor="@android:color/white"/>
 </LinearLayout>
