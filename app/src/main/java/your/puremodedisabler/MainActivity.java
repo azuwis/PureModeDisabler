@@ -10,9 +10,7 @@ import androidx.activity.ComponentActivity;
 import java.util.LinkedList;
 
 public class MainActivity extends ComponentActivity {
-    private static final int MAX_LOG_LINES = 50;
     private TextView logTextView;
-    private final LinkedList<String> logBuffer = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +23,8 @@ public class MainActivity extends ComponentActivity {
         logTextView = findViewById(R.id.logTextView);
         setupLogDisplay();
 
-        LogEventManager.getInstance().getLogLiveData()
-            .observe(this, this::appendLog);
+        LogEventManager.getInstance().getLogBuffer()
+            .observe(this, this::updateLog);
 
         SettingsMonitorService.startService(this);
     }
@@ -37,19 +35,14 @@ public class MainActivity extends ComponentActivity {
     }
 
     // 添加新日志条目（线程安全）
-    private synchronized void appendLog(final String message) {
+    private synchronized void updateLog(final LinkedList<String> logBuffer) {
         runOnUiThread(() -> {
-            if (logBuffer.size() >= MAX_LOG_LINES) {
-                logBuffer.removeFirst();
-            }
-            logBuffer.add(message);
-
-            updateLogDisplay();
+            updateLogDisplay(logBuffer);
         });
     }
 
     // 更新日志显示
-    private void updateLogDisplay() {
+    private void updateLogDisplay(LinkedList<String> logBuffer) {
         StringBuilder sb = new StringBuilder();
         for (String entry : logBuffer) {
             sb.append(entry).append("\n");
