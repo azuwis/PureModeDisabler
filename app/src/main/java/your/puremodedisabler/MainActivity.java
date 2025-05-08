@@ -2,7 +2,9 @@ package your.puremodedisabler;
 
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.provider.Settings;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
@@ -10,6 +12,9 @@ import androidx.activity.ComponentActivity;
 import java.util.LinkedList;
 
 public class MainActivity extends ComponentActivity {
+    private static final String PURE_MODE_SETTING = "pure_mode_state";
+
+    private Button btnPureModeStatus;
     private TextView logTextView;
 
     @Override
@@ -25,12 +30,26 @@ public class MainActivity extends ComponentActivity {
 
         findViewById(R.id.btnDisablePureMode).setOnClickListener(v -> {
             SettingsMonitorService.startService(this);
+            updateButtonText();
+        });
+
+        btnPureModeStatus = findViewById(R.id.btnPureModeStatus);
+        btnPureModeStatus.setOnClickListener(v -> {
+            updateButtonText();
         });
 
         LogEventManager.getInstance().getLogLiveData()
             .observe(this, this::updateLog);
 
         SettingsMonitorService.startService(this);
+
+        updateButtonText();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateButtonText();
     }
 
     private void setupLogDisplay() {
@@ -59,5 +78,25 @@ public class MainActivity extends ComponentActivity {
         // if (scrollAmount > 0) {
         //     logTextView.scrollTo(0, scrollAmount);
         // }
+    }
+
+    private int getPureModeState() {
+        try {
+            return Settings.Secure.getInt(getContentResolver(), PURE_MODE_SETTING);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+            return 0; // 默认值
+        } catch (SecurityException e) {
+            logTextView.setText(e.toString());
+            return -1;
+        }
+    }
+
+    private void updateButtonText() {
+        runOnUiThread(() -> {
+            int state = getPureModeState();
+            String text = (state == 1) ? "Disabled" : "Enabled";
+            btnPureModeStatus.setText(text);
+        });
     }
 }
