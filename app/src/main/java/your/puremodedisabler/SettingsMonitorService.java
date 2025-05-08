@@ -54,7 +54,7 @@ public class SettingsMonitorService extends Service {
                 mSettingsObserver
         );
 
-        sendLog("Check startMonitoring");
+        sendLog("Check onCreate");
         checkAndDisablePureMode();
     }
 
