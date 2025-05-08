@@ -14,19 +14,15 @@ import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.Locale;
 
 public class SettingsMonitorService extends Service {
-    private static final int MAX_LOG_LINES = 50;
     private static final String TAG = "PureModeDisabler";
     private static final String PURE_MODE_SETTING = "pure_mode_state";
 
     private ContentObserver mSettingsObserver;
     private AlarmManager mAlarmManager;
     private PendingIntent mAlarmPendingIntent;
-
-    private final LinkedList<String> logBuffer = new LinkedList<>();
 
     @Override
     public void onCreate() {
@@ -40,11 +36,7 @@ public class SettingsMonitorService extends Service {
         // 直接通过单例发送日志
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         String logEntry = sdf.format(new Date()) + " - " + message;
-        if (logBuffer.size() >= MAX_LOG_LINES) {
-            logBuffer.removeFirst();
-        }
-        logBuffer.add(logEntry);
-        LogEventManager.getInstance().postLog(logBuffer);
+        LogEventManager.getInstance().postLog(logEntry);
     }
 
     private void startMonitoring() {

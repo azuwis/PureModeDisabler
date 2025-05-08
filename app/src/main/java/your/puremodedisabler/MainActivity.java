@@ -23,7 +23,7 @@ public class MainActivity extends ComponentActivity {
         logTextView = findViewById(R.id.logTextView);
         setupLogDisplay();
 
-        LogEventManager.getInstance().getLogBuffer()
+        LogEventManager.getInstance().getLogLiveData()
             .observe(this, this::updateLog);
 
         SettingsMonitorService.startService(this);
