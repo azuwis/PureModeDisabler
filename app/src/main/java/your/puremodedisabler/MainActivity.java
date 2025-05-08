@@ -57,10 +57,10 @@ public class MainActivity extends ComponentActivity {
         logTextView.setText(sb.toString());
 
         // 自动滚动到底部
-        final int scrollAmount = logTextView.getLayout() != null ?
-                logTextView.getLayout().getLineTop(logTextView.getLineCount()) - logTextView.getHeight() : 0;
-        if (scrollAmount > 0) {
-            logTextView.scrollTo(0, scrollAmount);
-        }
+        // final int scrollAmount = logTextView.getLayout() != null ?
+        //         logTextView.getLayout().getLineTop(logTextView.getLineCount()) - logTextView.getHeight() : 0;
+        // if (scrollAmount > 0) {
+        //     logTextView.scrollTo(0, scrollAmount);
+        // }
     }
 }
