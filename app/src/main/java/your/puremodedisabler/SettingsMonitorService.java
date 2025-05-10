@@ -1,7 +1,5 @@
 package your.puremodedisabler;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -15,14 +13,11 @@ public class SettingsMonitorService extends Service {
     private static final String PURE_MODE_SETTING = "pure_mode_state";
 
     private ContentObserver mSettingsObserver;
-    private AlarmManager mAlarmManager;
-    private PendingIntent mAlarmPendingIntent;
 
     @Override
     public void onCreate() {
         super.onCreate();
         startMonitoring();
-        setupAlarm();
     }
 
     private void sendLog(String message) {
@@ -63,25 +58,6 @@ public class SettingsMonitorService extends Service {
         }
     }
 
-    private void setupAlarm() {
-        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, SettingsMonitorService.class);
-        mAlarmPendingIntent = PendingIntent.getService(
-                this,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        // 使用不精确重复闹钟
-        mAlarmManager.setInexactRepeating(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                AlarmManager.INTERVAL_HOUR,
-                AlarmManager.INTERVAL_HOUR,
-                mAlarmPendingIntent
-        );
-    }
-
     public static void startService(Context context) {
         Intent serviceIntent = new Intent(context, SettingsMonitorService.class);
         context.startService(serviceIntent);
@@ -100,9 +76,6 @@ public class SettingsMonitorService extends Service {
         super.onDestroy();
         if (mSettingsObserver != null) {
             getContentResolver().unregisterContentObserver(mSettingsObserver);
-        }
-        if (mAlarmManager != null && mAlarmPendingIntent != null) {
-            mAlarmManager.cancel(mAlarmPendingIntent);
         }
     }
 
