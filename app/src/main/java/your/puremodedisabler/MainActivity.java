@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
@@ -14,8 +13,9 @@ import java.util.LinkedList;
 public class MainActivity extends ComponentActivity {
     private static final String PURE_MODE_SETTING = "pure_mode_state";
 
-    private Button btnPureModeStatus;
     private TextView logTextView;
+    private LinkedList<String> logBuffer;
+    private String pureModeStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,26 +30,18 @@ public class MainActivity extends ComponentActivity {
 
         findViewById(R.id.btnDisablePureMode).setOnClickListener(v -> {
             SettingsMonitorService.startService(this);
-            updateButtonText();
-        });
-
-        btnPureModeStatus = findViewById(R.id.btnPureModeStatus);
-        btnPureModeStatus.setOnClickListener(v -> {
-            updateButtonText();
         });
 
         LogEventManager.getInstance().getLogLiveData()
             .observe(this, this::updateLog);
 
         SettingsMonitorService.startService(this);
-
-        updateButtonText();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updateButtonText();
+        updateLogDisplay();
     }
 
     private void setupLogDisplay() {
@@ -58,17 +50,24 @@ public class MainActivity extends ComponentActivity {
     }
 
     // 添加新日志条目（线程安全）
-    private synchronized void updateLog(final LinkedList<String> logBuffer) {
+    private synchronized void updateLog(final LinkedList<String> logs) {
+        logBuffer = logs;
         runOnUiThread(() -> {
-            updateLogDisplay(logBuffer);
+            updateLogDisplay();
         });
     }
 
     // 更新日志显示
-    private void updateLogDisplay(LinkedList<String> logBuffer) {
+    private void updateLogDisplay() {
+        updatePureModeStatus();
         StringBuilder sb = new StringBuilder();
-        for (String entry : logBuffer) {
-            sb.append(entry).append("\n");
+        if (pureModeStatus != null) {
+            sb.append(pureModeStatus).append("\n");
+        }
+        if (logBuffer != null) {
+            for (String entry : logBuffer) {
+                sb.append(entry).append("\n");
+            }
         }
         logTextView.setText(sb.toString());
 
@@ -92,11 +91,8 @@ public class MainActivity extends ComponentActivity {
         }
     }
 
-    private void updateButtonText() {
-        runOnUiThread(() -> {
-            int state = getPureModeState();
-            String text = (state == 1) ? "Disabled" : "Enabled";
-            btnPureModeStatus.setText(text);
-        });
+    private void updatePureModeStatus() {
+        int state = getPureModeState();
+        pureModeStatus = (state == 1) ? "Pure Mode - Disabled" : "Pure Mode - Enabled";
     }
 }
