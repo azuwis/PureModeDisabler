@@ -33,7 +33,7 @@ public class SettingsMonitorService extends Service {
         mSettingsObserver = new ContentObserver(new Handler()) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
-                sendLog("Check onChange");
+                sendLog("check: onChange");
                 checkAndDisablePureMode();
             }
         };
@@ -44,7 +44,7 @@ public class SettingsMonitorService extends Service {
                 mSettingsObserver
         );
 
-        sendLog("Check onCreate");
+        sendLog("check: onCreate");
         checkAndDisablePureMode();
     }
 
@@ -52,14 +52,14 @@ public class SettingsMonitorService extends Service {
         try {
             int currentState = Settings.Secure.getInt(getContentResolver(), PURE_MODE_SETTING);
             if (currentState != 1) {
+                sendLog("action: Disabling pure mode");
                 Settings.Secure.putInt(getContentResolver(), PURE_MODE_SETTING, 1);
-                sendLog("Pure mode disabled");
             }
         } catch (Settings.SettingNotFoundException e) {
-            sendLog("Pure mode setting not found: " + e);
+            sendLog("info: Pure mode setting not found: " + e);
         } catch (SecurityException e) {
-            sendLog("Missing WRITE_SECURE_SETTINGS permission: " + e);
-            sendLog("Setup adb and run: adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS");
+            sendLog("info: Missing WRITE_SECURE_SETTINGS permission: " + e);
+            sendLog("info: Setup adb and run: adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS");
         }
     }
 
@@ -90,7 +90,7 @@ public class SettingsMonitorService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // 每次被唤醒时重新检查状态
-        sendLog("Check onStartCommand");
+        sendLog("check: onStartCommand");
         checkAndDisablePureMode();
         return START_STICKY;
     }

@@ -98,6 +98,6 @@ public class MainActivity extends ComponentActivity {
         int state = getPureModeState();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
         String date = sdf.format(new Date());
-        pureModeStatus = date + " - " + ((state == 1) ? "Status: Disabled" : "Status: Enabled");
+        pureModeStatus = date + " - status: Pure mode " + ((state == 1) ? "disabled" : "enabled");
     }
 }
