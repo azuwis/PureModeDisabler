@@ -8,7 +8,10 @@ import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.Locale;
 
 public class MainActivity extends ComponentActivity {
     private static final String PURE_MODE_SETTING = "pure_mode_state";
@@ -61,13 +64,13 @@ public class MainActivity extends ComponentActivity {
     private void updateLogDisplay() {
         updatePureModeStatus();
         StringBuilder sb = new StringBuilder();
-        if (pureModeStatus != null) {
-            sb.append(pureModeStatus).append("\n");
-        }
         if (logBuffer != null) {
             for (String entry : logBuffer) {
                 sb.append(entry).append("\n");
             }
+        }
+        if (pureModeStatus != null) {
+            sb.append(pureModeStatus).append("\n");
         }
         logTextView.setText(sb.toString());
 
@@ -93,6 +96,8 @@ public class MainActivity extends ComponentActivity {
 
     private void updatePureModeStatus() {
         int state = getPureModeState();
-        pureModeStatus = (state == 1) ? "Pure Mode - Disabled" : "Pure Mode - Enabled";
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
+        String date = sdf.format(new Date());
+        pureModeStatus = date + " - " + ((state == 1) ? "Status: Disabled" : "Status: Enabled");
     }
 }
