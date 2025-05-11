@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public class LogEventManager {
     private static final String TAG = "PureModeDisabler";
-    private static final int MAX_LOG_LINES = 50;
+    private static final int MAX_LOG_LINES = 35;
     private static LogEventManager instance;
     private final MutableLiveData<LinkedList<String>> logLiveData = new MutableLiveData<>();
     private final LinkedList<String> logBuffer = new LinkedList<>();
