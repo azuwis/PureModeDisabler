@@ -1,6 +1,10 @@
 package your.puremodedisabler;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.text.method.ScrollingMovementMethod;
 import android.provider.Settings;
 import android.view.View;
@@ -35,6 +39,8 @@ public class MainActivity extends ComponentActivity {
             SettingsMonitorService.startService(this);
         });
 
+        requestDisableBatteryOptimization();
+
         LogEventManager.getInstance().getLogLiveData()
             .observe(this, this::updateLog);
 
@@ -45,6 +51,16 @@ public class MainActivity extends ComponentActivity {
     protected void onResume() {
         super.onResume();
         updateLogDisplay();
+    }
+
+    private void requestDisableBatteryOptimization() {
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (!powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 1001);
+        }
     }
 
     private void setupLogDisplay() {
