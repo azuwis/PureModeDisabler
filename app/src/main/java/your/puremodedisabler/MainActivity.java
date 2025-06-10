@@ -18,7 +18,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 
 public class MainActivity extends ComponentActivity {
-    private static final String PURE_MODE_SETTING = "pure_mode_state";
+    private static final String PURE_MODE_STATE = "pure_mode_state";
 
     private TextView logTextView;
     private LinkedList<String> logBuffer;
@@ -100,7 +100,7 @@ public class MainActivity extends ComponentActivity {
 
     private int getPureModeState() {
         try {
-            return Settings.Secure.getInt(getContentResolver(), PURE_MODE_SETTING);
+            return Settings.Secure.getInt(getContentResolver(), PURE_MODE_STATE);
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
             return 0; // 默认值

@@ -10,7 +10,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 
 public class SettingsMonitorService extends Service {
-    private static final String PURE_MODE_SETTING = "pure_mode_state";
+    private static final String PURE_MODE_STATE = "pure_mode_state";
 
     private ContentObserver mSettingsObserver;
 
@@ -34,7 +34,7 @@ public class SettingsMonitorService extends Service {
         };
 
         getContentResolver().registerContentObserver(
-                Settings.Secure.getUriFor(PURE_MODE_SETTING),
+                Settings.Secure.getUriFor(PURE_MODE_STATE),
                 false,
                 mSettingsObserver
         );
@@ -45,10 +45,10 @@ public class SettingsMonitorService extends Service {
 
     private void checkAndDisablePureMode() {
         try {
-            int currentState = Settings.Secure.getInt(getContentResolver(), PURE_MODE_SETTING);
+            int currentState = Settings.Secure.getInt(getContentResolver(), PURE_MODE_STATE);
             if (currentState != 1) {
                 sendLog("action: Disabling pure mode");
-                Settings.Secure.putInt(getContentResolver(), PURE_MODE_SETTING, 1);
+                Settings.Secure.putInt(getContentResolver(), PURE_MODE_STATE, 1);
             }
         } catch (Settings.SettingNotFoundException e) {
             sendLog("info: Pure mode setting not found: " + e);
