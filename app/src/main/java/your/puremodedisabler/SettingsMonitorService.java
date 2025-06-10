@@ -11,6 +11,7 @@ import android.provider.Settings;
 
 public class SettingsMonitorService extends Service {
     private static final String PURE_MODE_STATE = "pure_mode_state";
+    private static final String APP_CHECK_RISK = "app_check_risk";
 
     private ContentObserver mSettingsObserver;
 
@@ -39,6 +40,12 @@ public class SettingsMonitorService extends Service {
                 mSettingsObserver
         );
 
+        getContentResolver().registerContentObserver(
+                Settings.Global.getUriFor(APP_CHECK_RISK),
+                false,
+                mSettingsObserver
+        );
+
         sendLog("check: onCreate");
         checkAndDisablePureMode();
     }
@@ -52,6 +59,19 @@ public class SettingsMonitorService extends Service {
             }
         } catch (Settings.SettingNotFoundException e) {
             sendLog("info: Pure mode setting not found: " + e);
+        } catch (SecurityException e) {
+            sendLog("info: Missing WRITE_SECURE_SETTINGS permission: " + e);
+            sendLog("info: Setup adb and run: adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS");
+        }
+
+        try {
+            int currentState = Settings.Global.getInt(getContentResolver(), APP_CHECK_RISK);
+            if (currentState != 0) {
+                sendLog("action: Disabling app check risk");
+                Settings.Global.putInt(getContentResolver(), APP_CHECK_RISK, 0);
+            }
+        } catch (Settings.SettingNotFoundException e) {
+            sendLog("info: App check risk setting not found: " + e);
         } catch (SecurityException e) {
             sendLog("info: Missing WRITE_SECURE_SETTINGS permission: " + e);
             sendLog("info: Setup adb and run: adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS");
