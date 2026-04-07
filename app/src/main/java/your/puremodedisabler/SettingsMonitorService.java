@@ -11,6 +11,8 @@ import android.provider.Settings;
 
 public class SettingsMonitorService extends Service {
     private ContentObserver mSettingsObserver;
+    private final Handler mHandler = new Handler();
+    private Runnable mPendingCheck;
 
     @Override
     public void onCreate() {
@@ -19,11 +21,18 @@ public class SettingsMonitorService extends Service {
     }
 
     private void startMonitoring() {
-        mSettingsObserver = new ContentObserver(new Handler()) {
+        mSettingsObserver = new ContentObserver(mHandler) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
-                LogEventManager.getInstance().postLog("check: onChange");
-                PureModeHelper.checkAndDisablePureMode(getContentResolver());
+                if (mPendingCheck != null) {
+                    return;
+                }
+                mPendingCheck = () -> {
+                    mPendingCheck = null;
+                    LogEventManager.getInstance().postLog("check: onChange");
+                    PureModeHelper.checkAndDisablePureMode(getContentResolver());
+                };
+                mHandler.post(mPendingCheck);
             }
         };
 
