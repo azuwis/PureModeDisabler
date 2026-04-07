@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
         try {
             return Settings.Secure.getInt(getContentResolver(), PURE_MODE_STATE);
         } catch (Settings.SettingNotFoundException e) {
-            e.printStackTrace();
+            LogEventManager.getInstance().postLog("info: Pure mode setting not found: " + e);
             return 0;
         } catch (SecurityException e) {
             logTextView.setText(e.toString());
