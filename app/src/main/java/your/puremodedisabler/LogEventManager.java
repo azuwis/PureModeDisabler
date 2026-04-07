@@ -2,26 +2,25 @@ package your.puremodedisabler;
 
 import android.util.Log;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Locale;
+import java.util.List;
 
 public class LogEventManager {
     private static final String TAG = "PureModeDisabler";
     private static final int MAX_LOG_LINES = 35;
-    private static LogEventManager instance;
+    private static final LogEventManager instance = new LogEventManager();
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     private final LinkedList<String> logBuffer = new LinkedList<>();
     private Listener listener;
 
     public interface Listener {
-        void onLogChanged(LinkedList<String> logs);
+        void onLogChanged(List<String> logs);
     }
 
     public static LogEventManager getInstance() {
-        if (instance == null) {
-            instance = new LogEventManager();
-        }
         return instance;
     }
 
@@ -29,20 +28,19 @@ public class LogEventManager {
         this.listener = listener;
     }
 
-    public LinkedList<String> getLogs() {
-        return logBuffer;
+    public List<String> getLogs() {
+        return new ArrayList<>(logBuffer);
     }
 
     public void postLog(String message) {
         Log.d(TAG, message);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
-        String logEntry = sdf.format(new Date()) + " - " + message;
+        String logEntry = LocalTime.now().format(TIME_FORMAT) + " - " + message;
         if (logBuffer.size() >= MAX_LOG_LINES) {
             logBuffer.removeFirst();
         }
         logBuffer.add(logEntry);
         if (listener != null) {
-            listener.onLogChanged(logBuffer);
+            listener.onLogChanged(new ArrayList<>(logBuffer));
         }
     }
 }

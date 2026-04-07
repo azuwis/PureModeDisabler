@@ -11,16 +11,17 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.Locale;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class MainActivity extends Activity {
     private static final String PURE_MODE_STATE = "pure_mode_state";
 
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+
     private TextView logTextView;
-    private LinkedList<String> logBuffer;
+    private List<String> logBuffer;
     private String pureModeStatus;
 
     @Override
@@ -75,7 +76,7 @@ public class MainActivity extends Activity {
         logTextView.setVerticalScrollBarEnabled(true);
     }
 
-    private void updateLog(final LinkedList<String> logs) {
+    private void updateLog(final List<String> logs) {
         logBuffer = logs;
         runOnUiThread(this::updateLogDisplay);
     }
@@ -108,8 +109,7 @@ public class MainActivity extends Activity {
 
     private void updatePureModeStatus() {
         int state = getPureModeState();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
-        String date = sdf.format(new Date());
+        String date = LocalTime.now().format(TIME_FORMAT);
         pureModeStatus = date + " - status: Pure mode " + ((state == 1) ? "disabled" : "enabled");
     }
 }
