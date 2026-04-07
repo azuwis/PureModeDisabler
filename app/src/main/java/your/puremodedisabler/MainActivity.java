@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
             Intent intent = new Intent();
             intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             intent.setData(Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 1001);
+            startActivity(intent);
         }
     }
 
