@@ -7,11 +7,12 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 
 public class SettingsMonitorService extends Service {
     private ContentObserver mSettingsObserver;
-    private final Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private Runnable mPendingCheck;
 
     @Override
