@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
             LogEventManager.getInstance().postLog("info: Pure mode setting not found: " + e);
             return 0;
         } catch (SecurityException e) {
-            logTextView.setText(e.toString());
+            LogEventManager.getInstance().postLog("error: " + e);
             return -1;
         }
     }
