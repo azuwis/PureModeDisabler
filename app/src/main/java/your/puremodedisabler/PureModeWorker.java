@@ -12,8 +12,7 @@ public class PureModeWorker extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        LogEventManager.getInstance().postLog("check: onSchedule");
-        PureModeHelper.checkAndDisablePureMode(getContentResolver());
+        PureModeHelper.checkAndDisablePureMode(getContentResolver(), "onSchedule");
         return false;
     }
 

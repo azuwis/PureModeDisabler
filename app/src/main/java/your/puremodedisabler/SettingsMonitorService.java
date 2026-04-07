@@ -22,8 +22,7 @@ public class SettingsMonitorService extends Service {
         mSettingsObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
             @Override
             public void onChange(boolean selfChange) {
-                LogEventManager.getInstance().postLog("check: onChange");
-                PureModeHelper.checkAndDisablePureMode(getContentResolver());
+                PureModeHelper.checkAndDisablePureMode(getContentResolver(), "onChange");
             }
         };
 
@@ -39,8 +38,7 @@ public class SettingsMonitorService extends Service {
                 mSettingsObserver
         );
 
-        LogEventManager.getInstance().postLog("check: onCreate");
-        PureModeHelper.checkAndDisablePureMode(getContentResolver());
+        PureModeHelper.checkAndDisablePureMode(getContentResolver(), "onCreate");
     }
 
     public static void startService(Context context) {
@@ -51,8 +49,7 @@ public class SettingsMonitorService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // 每次被唤醒时重新检查状态
-        LogEventManager.getInstance().postLog("check: onStartCommand");
-        PureModeHelper.checkAndDisablePureMode(getContentResolver());
+        PureModeHelper.checkAndDisablePureMode(getContentResolver(), "onStartCommand");
         return START_STICKY;
     }
 

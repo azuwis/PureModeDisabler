@@ -7,11 +7,11 @@ public class PureModeHelper {
     static final String PURE_MODE_STATE = "pure_mode_state";
     static final String APP_CHECK_RISK = "app_check_risk";
 
-    static void checkAndDisablePureMode(ContentResolver resolver) {
+    static void checkAndDisablePureMode(ContentResolver resolver, String event) {
         try {
             int currentState = Settings.Secure.getInt(resolver, PURE_MODE_STATE);
             if (currentState != 1) {
-                LogEventManager.getInstance().postLog("action: Disabling pure mode");
+                LogEventManager.getInstance().postLog(event + ": Disabling pure mode");
                 Settings.Secure.putInt(resolver, PURE_MODE_STATE, 1);
             }
         } catch (Settings.SettingNotFoundException e) {
