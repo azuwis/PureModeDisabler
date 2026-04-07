@@ -17,8 +17,7 @@ public class PureModeHelper {
         } catch (Settings.SettingNotFoundException e) {
             LogEventManager.getInstance().postLog("info: Pure mode setting not found: " + e);
         } catch (SecurityException e) {
-            LogEventManager.getInstance().postLog("info: Missing WRITE_SECURE_SETTINGS permission: " + e);
-            LogEventManager.getInstance().postLog("info: Setup adb and run: adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS");
+            logPermissionError(e);
         }
 
         try {
@@ -30,8 +29,12 @@ public class PureModeHelper {
         } catch (Settings.SettingNotFoundException e) {
             LogEventManager.getInstance().postLog("info: App check risk setting not found: " + e);
         } catch (SecurityException e) {
-            LogEventManager.getInstance().postLog("info: Missing WRITE_SECURE_SETTINGS permission: " + e);
-            LogEventManager.getInstance().postLog("info: Setup adb and run: adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS");
+            logPermissionError(e);
         }
+    }
+
+    private static void logPermissionError(SecurityException e) {
+        LogEventManager.getInstance().postLog("info: Missing WRITE_SECURE_SETTINGS permission: " + e);
+        LogEventManager.getInstance().postLog("info: Setup adb and run: adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS");
     }
 }

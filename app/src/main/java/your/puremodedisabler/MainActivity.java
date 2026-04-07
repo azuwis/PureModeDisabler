@@ -16,13 +16,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class MainActivity extends Activity {
-    private static final String PURE_MODE_STATE = "pure_mode_state";
-
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
     private TextView logTextView;
     private List<String> logBuffer;
-    private String pureModeStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +31,8 @@ public class MainActivity extends Activity {
             WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
 
         logTextView = findViewById(R.id.logTextView);
-        setupLogDisplay();
+        logTextView.setMovementMethod(new ScrollingMovementMethod());
+        logTextView.setVerticalScrollBarEnabled(true);
 
         findViewById(R.id.btnDisablePureMode).setOnClickListener(v -> {
             SettingsMonitorService.startService(this);
@@ -42,7 +40,10 @@ public class MainActivity extends Activity {
 
         requestDisableBatteryOptimization();
 
-        LogEventManager.getInstance().setListener(this::updateLog);
+        LogEventManager.getInstance().setListener(logs -> {
+            logBuffer = logs;
+            runOnUiThread(this::updateLogDisplay);
+        });
         logBuffer = LogEventManager.getInstance().getLogs();
         updateLogDisplay();
 
@@ -72,45 +73,29 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void setupLogDisplay() {
-        logTextView.setMovementMethod(new ScrollingMovementMethod());
-        logTextView.setVerticalScrollBarEnabled(true);
-    }
-
-    private void updateLog(final List<String> logs) {
-        logBuffer = logs;
-        runOnUiThread(this::updateLogDisplay);
+    private String getPureModeStatus() {
+        int state;
+        try {
+            state = Settings.Secure.getInt(getContentResolver(), PureModeHelper.PURE_MODE_STATE);
+        } catch (Settings.SettingNotFoundException e) {
+            LogEventManager.getInstance().postLog("info: Pure mode setting not found: " + e);
+            state = 0;
+        } catch (SecurityException e) {
+            LogEventManager.getInstance().postLog("error: " + e);
+            state = -1;
+        }
+        String date = LocalTime.now().format(TIME_FORMAT);
+        return date + " - status: Pure mode " + ((state == 1) ? "disabled" : "enabled");
     }
 
     private void updateLogDisplay() {
-        updatePureModeStatus();
         StringBuilder sb = new StringBuilder();
         if (logBuffer != null) {
             for (String entry : logBuffer) {
                 sb.append(entry).append("\n");
             }
         }
-        if (pureModeStatus != null) {
-            sb.append(pureModeStatus).append("\n");
-        }
+        sb.append(getPureModeStatus()).append("\n");
         logTextView.setText(sb.toString());
-    }
-
-    private int getPureModeState() {
-        try {
-            return Settings.Secure.getInt(getContentResolver(), PURE_MODE_STATE);
-        } catch (Settings.SettingNotFoundException e) {
-            LogEventManager.getInstance().postLog("info: Pure mode setting not found: " + e);
-            return 0;
-        } catch (SecurityException e) {
-            LogEventManager.getInstance().postLog("error: " + e);
-            return -1;
-        }
-    }
-
-    private void updatePureModeStatus() {
-        int state = getPureModeState();
-        String date = LocalTime.now().format(TIME_FORMAT);
-        pureModeStatus = date + " - status: Pure mode " + ((state == 1) ? "disabled" : "enabled");
     }
 }
