@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -12,8 +11,6 @@ import android.provider.Settings;
 
 public class SettingsMonitorService extends Service {
     private ContentObserver mSettingsObserver;
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
-    private Runnable mPendingCheck;
 
     @Override
     public void onCreate() {
@@ -22,18 +19,11 @@ public class SettingsMonitorService extends Service {
     }
 
     private void startMonitoring() {
-        mSettingsObserver = new ContentObserver(mHandler) {
+        mSettingsObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
             @Override
-            public void onChange(boolean selfChange, Uri uri) {
-                if (mPendingCheck != null) {
-                    return;
-                }
-                mPendingCheck = () -> {
-                    mPendingCheck = null;
-                    LogEventManager.getInstance().postLog("check: onChange");
-                    PureModeHelper.checkAndDisablePureMode(getContentResolver());
-                };
-                mHandler.post(mPendingCheck);
+            public void onChange(boolean selfChange) {
+                LogEventManager.getInstance().postLog("check: onChange");
+                PureModeHelper.checkAndDisablePureMode(getContentResolver());
             }
         };
 
