@@ -1,5 +1,6 @@
 package your.puremodedisabler;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,14 +11,12 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.activity.ComponentActivity;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
 
-public class MainActivity extends ComponentActivity {
+public class MainActivity extends Activity {
     private static final String PURE_MODE_STATE = "pure_mode_state";
 
     private TextView logTextView;
@@ -41,11 +40,18 @@ public class MainActivity extends ComponentActivity {
 
         requestDisableBatteryOptimization();
 
-        LogEventManager.getInstance().getLogLiveData()
-            .observe(this, this::updateLog);
+        LogEventManager.getInstance().setListener(this::updateLog);
+        logBuffer = LogEventManager.getInstance().getLogs();
+        updateLogDisplay();
 
         PureModeWorker.schedule(this);
         SettingsMonitorService.startService(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LogEventManager.getInstance().setListener(null);
     }
 
     @Override
@@ -69,15 +75,11 @@ public class MainActivity extends ComponentActivity {
         logTextView.setVerticalScrollBarEnabled(true);
     }
 
-    // 添加新日志条目（线程安全）
-    private synchronized void updateLog(final LinkedList<String> logs) {
+    private void updateLog(final LinkedList<String> logs) {
         logBuffer = logs;
-        runOnUiThread(() -> {
-            updateLogDisplay();
-        });
+        runOnUiThread(this::updateLogDisplay);
     }
 
-    // 更新日志显示
     private void updateLogDisplay() {
         updatePureModeStatus();
         StringBuilder sb = new StringBuilder();
@@ -90,13 +92,6 @@ public class MainActivity extends ComponentActivity {
             sb.append(pureModeStatus).append("\n");
         }
         logTextView.setText(sb.toString());
-
-        // 自动滚动到底部
-        // final int scrollAmount = logTextView.getLayout() != null ?
-        //         logTextView.getLayout().getLineTop(logTextView.getLineCount()) - logTextView.getHeight() : 0;
-        // if (scrollAmount > 0) {
-        //     logTextView.scrollTo(0, scrollAmount);
-        // }
     }
 
     private int getPureModeState() {
@@ -104,7 +99,7 @@ public class MainActivity extends ComponentActivity {
             return Settings.Secure.getInt(getContentResolver(), PURE_MODE_STATE);
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
-            return 0; // 默认值
+            return 0;
         } catch (SecurityException e) {
             logTextView.setText(e.toString());
             return -1;

@@ -1,36 +1,37 @@
 package your.puremodedisabler;
 
+import android.app.job.JobInfo;
+import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
+import android.app.job.JobService;
+import android.content.ComponentName;
 import android.content.Context;
 
-import java.util.concurrent.TimeUnit;
+public class PureModeWorker extends JobService {
+    private static final int JOB_ID = 1;
 
-import androidx.annotation.NonNull;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
-
-public class PureModeWorker extends Worker {
-    private static final String WORK_NAME = "pure_mode_check";
-
-    public PureModeWorker(@NonNull Context context, @NonNull WorkerParameters params) {
-        super(context, params);
+    @Override
+    public boolean onStartJob(JobParameters params) {
+        LogEventManager.getInstance().postLog("check: onSchedule");
+        PureModeHelper.checkAndDisablePureMode(getContentResolver());
+        return false;
     }
 
-    @NonNull
     @Override
-    public Result doWork() {
-        LogEventManager.getInstance().postLog("check: onSchedule");
-        PureModeHelper.checkAndDisablePureMode(getApplicationContext().getContentResolver());
-        return Result.success();
+    public boolean onStopJob(JobParameters params) {
+        return true;
     }
 
     public static void schedule(Context context) {
-        PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(
-                PureModeWorker.class, 15, TimeUnit.MINUTES)
+        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        if (scheduler.getPendingJob(JOB_ID) != null) {
+            return;
+        }
+        JobInfo job = new JobInfo.Builder(JOB_ID,
+                new ComponentName(context, PureModeWorker.class))
+                .setPeriodic(15 * 60 * 1000)
+                .setPersisted(true)
                 .build();
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request);
+        scheduler.schedule(job);
     }
 }

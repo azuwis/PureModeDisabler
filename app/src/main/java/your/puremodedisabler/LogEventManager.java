@@ -2,9 +2,6 @@ package your.puremodedisabler;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -14,8 +11,12 @@ public class LogEventManager {
     private static final String TAG = "PureModeDisabler";
     private static final int MAX_LOG_LINES = 35;
     private static LogEventManager instance;
-    private final MutableLiveData<LinkedList<String>> logLiveData = new MutableLiveData<>();
     private final LinkedList<String> logBuffer = new LinkedList<>();
+    private Listener listener;
+
+    public interface Listener {
+        void onLogChanged(LinkedList<String> logs);
+    }
 
     public static LogEventManager getInstance() {
         if (instance == null) {
@@ -24,8 +25,12 @@ public class LogEventManager {
         return instance;
     }
 
-    public LiveData<LinkedList<String>> getLogLiveData() {
-        return logLiveData;
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
+    public LinkedList<String> getLogs() {
+        return logBuffer;
     }
 
     public void postLog(String message) {
@@ -36,6 +41,8 @@ public class LogEventManager {
             logBuffer.removeFirst();
         }
         logBuffer.add(logEntry);
-        logLiveData.setValue(logBuffer);
+        if (listener != null) {
+            listener.onLogChanged(logBuffer);
+        }
     }
 }
