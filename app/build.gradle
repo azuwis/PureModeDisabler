@@ -13,11 +13,32 @@ android {
         versionName "1.0"
     }
 
+    def releaseStoreFile = findProperty('storeFile')
+    def releaseKeyAlias = findProperty('keyAlias')
+    def releaseStorePassword = findProperty('keystorePassword')
+    def releaseKeyPassword = findProperty('keyPassword')
+
+    def canSign = releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
+
+    if (canSign) {
+        signingConfigs {
+            release {
+                storeFile file(releaseStoreFile.replace('~', System.getProperty('user.home')))
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             shrinkResources true
+            if (canSign) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
