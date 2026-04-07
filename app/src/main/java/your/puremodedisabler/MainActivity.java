@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.method.ScrollingMovementMethod;
 import android.provider.Settings;
-import android.view.View;
+import android.view.WindowInsetsController;
 import android.widget.TextView;
 
 import java.time.LocalTime;
@@ -29,8 +29,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getWindow().getDecorView().setSystemUiVisibility(
-            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        getWindow().getInsetsController().setSystemBarsAppearance(
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
 
         logTextView = findViewById(R.id.logTextView);
         setupLogDisplay();
