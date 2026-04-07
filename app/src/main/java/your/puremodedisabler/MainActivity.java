@@ -44,6 +44,7 @@ public class MainActivity extends ComponentActivity {
         LogEventManager.getInstance().getLogLiveData()
             .observe(this, this::updateLog);
 
+        PureModeWorker.schedule(this);
         SettingsMonitorService.startService(this);
     }
 
