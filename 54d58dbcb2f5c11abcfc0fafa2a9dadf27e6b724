@@ -2,6 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Storing This File
+
+CLAUDE.md is NOT tracked on any branch. It is stored as a git note under `refs/notes/claude-md`, attached to the root commit. CLAUDE.md should be listed in `.git/info/exclude` to hide it from `git status`.
+
+**Never use `git add`/`git commit` for CLAUDE.md.** Always use the save command below.
+
+**Save changes:**
+```bash
+git notes --ref=claude-md add -f -F CLAUDE.md $(git rev-list --max-parents=0 HEAD)
+```
+
+**Restore to working tree:**
+```bash
+git notes --ref=claude-md show $(git rev-list --max-parents=0 HEAD) > CLAUDE.md
+```
+
+**View history:**
+```bash
+git log refs/notes/claude-md
+```
+
 ## Project Overview
 
 PureModeDisabler is a small Android app (Java) that automatically disables "Pure Mode" and "App Check Risk" secure settings on HarmonyOS 4 devices. It monitors these settings via ContentObserver, re-disabling them whenever they change, and persists across reboots via a boot receiver.
