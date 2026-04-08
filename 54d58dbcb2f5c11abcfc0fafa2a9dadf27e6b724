@@ -64,8 +64,8 @@ adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTING
 
 Java classes in `app/src/main/java/your/puremodedisabler/`:
 
-- **PureModeHelper** — Shared logic for disabling `pure_mode_state` (Secure, set to 1) and `app_check_risk` (Global, set to 0). Used by both SettingsMonitorService and PureModeWorker.
-- **SettingsMonitorService** — Sticky service that registers a ContentObserver on the two settings for immediate response when alive. Debounces rapid-fire onChange callbacks (from both URIs or self-triggered writes) into a single check via `postDelayed` (500ms). Delegates to PureModeHelper.
+- **PureModeHelper** — Shared logic for disabling `pure_mode_state` (Secure, set to 1) and `app_check_risk` (Global, set to 0). Accepts a caller event name for log context. Used by both SettingsMonitorService and PureModeWorker.
+- **SettingsMonitorService** — Sticky service that registers a ContentObserver on the two settings for immediate response when alive. Calls PureModeHelper directly on each onChange callback.
 - **PureModeWorker** — JobScheduler periodic job (every 15 minutes) that calls PureModeHelper. Acts as a fallback when HarmonyOS 4 kills the service after a few days. Uses `setPersisted(true)` to survive reboots.
 - **BootReceiver** — Starts SettingsMonitorService and schedules PureModeWorker on boot (handles both BOOT_COMPLETED and QUICKBOOT_POWERON via manifest intent-filter).
 - **MainActivity** — Single-screen UI with a log view (observes LogEventManager via callback listener) and a manual "Disable Pure Mode" button. Schedules PureModeWorker and starts the service on launch.
