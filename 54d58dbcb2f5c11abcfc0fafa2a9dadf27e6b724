@@ -23,6 +23,16 @@ git notes --ref=claude-md show "$(git rev-list --max-parents=0 HEAD)" > CLAUDE.m
 git diff --no-index <(git notes --ref=claude-md show "$(git rev-list --max-parents=0 HEAD)") CLAUDE.md
 ```
 
+**Push to remote:**
+```bash
+git push origin refs/notes/claude-md
+```
+
+**Fetch from remote:**
+```bash
+git fetch origin refs/notes/claude-md:refs/notes/claude-md
+```
+
 **View history:**
 ```bash
 git log -p refs/notes/claude-md
