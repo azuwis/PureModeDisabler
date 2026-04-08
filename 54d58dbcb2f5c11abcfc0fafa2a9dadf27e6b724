@@ -1,0 +1,60 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+PureModeDisabler is a small Android app (Java) that automatically disables "Pure Mode" and "App Check Risk" secure settings on HarmonyOS 4 devices. It monitors these settings via ContentObserver, re-disabling them whenever they change, and persists across reboots via a boot receiver.
+
+## Build Commands
+
+```bash
+./gradlew assembleDebug       # Build debug APK
+./gradlew assembleRelease     # Build release APK (with ProGuard/R8)
+./gradlew installDebug        # Build and install on connected device
+./gradlew clean               # Clean build artifacts
+```
+
+No test or lint infrastructure is configured.
+
+## Setup
+
+The app requires `WRITE_SECURE_SETTINGS` permission granted via ADB:
+```bash
+adb shell pm grant your.puremodedisabler android.permission.WRITE_SECURE_SETTINGS
+```
+
+## Architecture
+
+Java classes in `app/src/main/java/your/puremodedisabler/`:
+
+- **PureModeHelper** — Shared logic for disabling `pure_mode_state` (Secure, set to 1) and `app_check_risk` (Global, set to 0). Used by both SettingsMonitorService and PureModeWorker.
+- **SettingsMonitorService** — Sticky service that registers a ContentObserver on the two settings for immediate response when alive. Debounces rapid-fire onChange callbacks (from both URIs or self-triggered writes) into a single check via `postDelayed` (500ms). Delegates to PureModeHelper.
+- **PureModeWorker** — JobScheduler periodic job (every 15 minutes) that calls PureModeHelper. Acts as a fallback when HarmonyOS 4 kills the service after a few days. Uses `setPersisted(true)` to survive reboots.
+- **BootReceiver** — Starts SettingsMonitorService and schedules PureModeWorker on boot (handles both BOOT_COMPLETED and QUICKBOOT_POWERON via manifest intent-filter).
+- **MainActivity** — Single-screen UI with a log view (observes LogEventManager via callback listener) and a manual "Disable Pure Mode" button. Schedules PureModeWorker and starts the service on launch.
+- **LogEventManager** — Singleton with a circular buffer (max 35 entries) exposed via a simple callback listener. Timestamps log entries and also writes to Android logcat with tag "PureModeDisabler".
+
+Two layers of protection: SettingsMonitorService reacts instantly via ContentObserver while alive; PureModeWorker re-disables periodically via the system job scheduler even after the app process is killed.
+
+## Dependencies
+
+The app has zero library dependencies — it uses only Android framework APIs (JobScheduler, ContentObserver, Activity, etc.) to minimize APK size.
+
+- **compileSdk/targetSdk:** 34 (Android 14)
+- **minSdk:** 31 (Android 12)
+- **Android Gradle Plugin:** 8.7.3
+- **Package:** `your.puremodedisabler`
+
+## Release Signing
+
+Release signing is configured via Gradle project properties (`~/.gradle/gradle.properties`):
+
+```properties
+storeFile=~/.android/release.keystore
+keystorePassword=yourpassword
+keyAlias=release
+keyPassword=yourpassword
+```
+
+If any property is missing, the release build produces an unsigned APK.
