@@ -10,17 +10,22 @@ CLAUDE.md is NOT tracked on any branch. It is stored as a git note under `refs/n
 
 **Save changes:**
 ```bash
-git notes --ref=claude-md add -f -F CLAUDE.md $(git rev-list --max-parents=0 HEAD)
+git notes --ref=claude-md add -f --file CLAUDE.md "$(git rev-list --max-parents=0 HEAD)"
 ```
 
 **Restore to working tree:**
 ```bash
-git notes --ref=claude-md show $(git rev-list --max-parents=0 HEAD) > CLAUDE.md
+git notes --ref=claude-md show "$(git rev-list --max-parents=0 HEAD)" > CLAUDE.md
+```
+
+**View diff:**
+```bash
+git diff --no-index <(git notes --ref=claude-md show "$(git rev-list --max-parents=0 HEAD)") CLAUDE.md
 ```
 
 **View history:**
 ```bash
-git log refs/notes/claude-md
+git log -p refs/notes/claude-md
 ```
 
 ## Project Overview
